@@ -171,15 +171,25 @@ function displayQuestion() {
     `).join('');
 }
 
-function checkAnswer(selected) {
+function handleAnswer(selected) {
+    const options = document.querySelectorAll('.option');
+    
+    options.forEach(opt => {
+        opt.style.pointerEvents = 'none'; // 禁用点击
+        if(opt.textContent === currentQuestion.answer) {
+            opt.classList.add('correct');
+        }
+    });
+
     if(selected === currentQuestion.answer) {
         score += 10;
         document.getElementById('score').textContent = `得分: ${score}`;
-        alert('✅ 正确！');
+        setTimeout(displayQuestion, 800); // 正确时延迟跳转
     } else {
-        alert(`❌ 正确答案是：${currentQuestion.answer}`);
+        document.querySelector(`.option:contains('${selected}')`).classList.add('wrong');
+        document.getElementById('feedback').textContent = `正确答案：${currentQuestion.answer}`;
+        setTimeout(displayQuestion, 1500); // 错误时显示1.5秒后刷新
     }
-    displayQuestion();
 }
 
 // 工具函数
