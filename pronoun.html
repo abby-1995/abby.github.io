@@ -1,248 +1,208 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-
 <head>
-  <meta charset="UTF-8">
-  <title>代词转换大师</title>
-  <style>
-    :root {
-      --primary: #FF6B6B;
-      --secondary: #4ECDC4;
-      --background: #2D3436;
-    }
+    <meta charset="UTF-8">
+    <title>代词转换大师</title>
+    <style>
+        :root {
+            --primary: #FF6B6B;
+            --secondary: #4ECDC4;
+            --background: #2D3436;
+        }
 
-    body {
-      margin: 0;
-      min-height: 100vh;
-      background: var(--background);
-      font-family: Arial;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      color: white;
-    }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: var(--background);
+            font-family: Arial;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+        }
 
-    #game-box {
-      width: 800px;
-      padding: 20px;
-      background: #333;
-      border-radius: 10px;
-      text-align: center;
-    }
+        #game-box {
+            width: 800px;
+            padding: 20px;
+            background: #333;
+            border-radius: 10px;
+            text-align: center;
+        }
 
-    #question {
-      font-size: 24px;
-      margin: 20px 0;
-      color: var(--secondary);
-      min-height: 60px;
-    }
+        #question {
+            font-size: 24px;
+            margin: 20px 0;
+            color: var(--secondary);
+            min-height: 60px;
+        }
 
-    .options-container {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 15px;
-      margin: 30px 0;
-    }
+        .options-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin: 30px 0;
+        }
 
-    .option {
-      padding: 15px;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.2s;
-      position: relative;
-      overflow: hidden;
-    }
+        .option {
+            padding: 15px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
 
-    .option:hover {
-      transform: scale(1.02);
-    }
+        .option:hover {
+            background: var(--primary);
+            transform: scale(1.05);
+        }
 
-    .option.correct {
-      background: var(--secondary);
-    }
+        #progress {
+            font-size: 18px;
+            color: var(--secondary);
+        }
 
-    .option.wrong {
-      background: var(--primary);
-      animation: shake 0.5s;
-    }
-
-    @keyframes shake {
-
-      0%,
-      100% {
-        transform: translateX(0);
-      }
-
-      25% {
-        transform: translateX(-5px);
-      }
-
-      75% {
-        transform: translateX(5px);
-      }
-    }
-
-    #progress {
-      font-size: 18px;
-      color: var(--secondary);
-    }
-
-    #score {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      font-size: 20px;
-    }
-
-    #feedback {
-      margin-top: 20px;
-      min-height: 24px;
-      font-size: 18px;
-    }
-  </style>
+        #score {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            font-size: 20px;
+        }
+    </style>
 </head>
-
 <body>
-  <div id="score">得分: 0</div>
-  <div id="game-box">
-    <div id="question"></div>
-    <div class="options-container"></div>
-    <div id="progress"></div>
-    <div id="feedback"></div>
-  </div>
+    <div id="score">得分: 0</div>
+    <div id="game-box">
+        <div id="question"></div>
+        <div class="options-container"></div>
+        <div id="progress"></div>
+    </div>
 
-  <script>
-    const pronounBank = [{
+<script>
+// 完整的代词题库（覆盖所有7个人称）
+const pronounBank = [
+    {
         chinese: "我",
         forms: ["I", "me", "my", "mine", "myself"]
-      },
-      {
+    },
+    {
         chinese: "你",
         forms: ["you", "you", "your", "yours", "yourself"]
-      },
-      {
+    },
+    {
         chinese: "他",
         forms: ["he", "him", "his", "his", "himself"]
-      },
-      {
+    },
+    {
         chinese: "她",
         forms: ["she", "her", "her", "hers", "herself"]
-      },
-      {
+    },
+    {
         chinese: "它",
         forms: ["it", "it", "its", "its", "itself"]
-      },
-      {
+    },
+    {
         chinese: "我们",
         forms: ["we", "us", "our", "ours", "ourselves"]
-      },
-      {
+    },
+    {
         chinese: "他们",
         forms: ["they", "them", "their", "theirs", "themselves"]
-      }
-    ];
-    const questionTypes = [{
-        from: 0,
-        to: 0,
-        desc: "的主格形式是？"
-      },
-      {
-        from: 0,
-        to: 1,
-        desc: "的宾格形式是？"
-      },
-      {
-        from: 0,
-        to: 2,
-        desc: "的形容词性物主代词是？"
-      },
-      {
-        from: 2,
-        to: 3,
-        desc: "对应的名词性物主代词是？"
-      },
-      {
-        from: 1,
-        to: 4,
-        desc: "的反身代词是？"
-      }
-    ];
-    let currentQuestion = null;
-    let score = 0;
-    let questionCount = 0;
+    }
+];
 
-    function generateQuestion() {
-      const pronoun = pronounBank[Math.floor(Math.random() * pronounBank.length)];
-      const type = questionTypes[Math.floor(Math.random() * questionTypes.length)];
-      let questionText = '';
-      if (type.from === 0) {
+// 题型配置
+const questionTypes = [
+    { from: 0, to: 1, desc: "的主格形式是？" },  // 中文->主格
+    { from: 0, to: 1, desc: "的宾格形式是？" },  // 中文->宾格
+    { from: 0, to: 2, desc: "的形容词性物主代词是？" }, // 中文->形容词性
+    { from: 2, to: 3, desc: "对应的名词性物主代词是？" }, // 形容词性->名词性
+    { from: 1, to: 4, desc: "的反身代词是？" }  // 宾格->反身
+];
+
+let currentQuestion = null;
+let score = 0;
+let questionCount = 0;
+
+function generateQuestion() {
+    // 随机选择一个人称
+    const pronoun = pronounBank[Math.floor(Math.random() * pronounBank.length)];
+    // 随机选择一个题型
+    const type = questionTypes[Math.floor(Math.random() * questionTypes.length)];
+    
+    // 生成问题描述
+    let questionText = '';
+    if(type.from === 0) { // 中文提问
         questionText = `${pronoun.chinese}${type.desc}`;
-      } else {
+    } else { // 英文转换
         const fromForm = pronoun.forms[type.from];
         questionText = `${fromForm}${type.desc}`;
-      }
-      const correctAnswer = pronoun.forms[type.to];
-      const options = [correctAnswer];
-      while (options.length < 4) {
+    }
+
+    // 生成选项
+    const correctAnswer = pronoun.forms[type.to];
+    const options = [correctAnswer];
+    
+    // 生成3个干扰项
+    while(options.length < 4) {
         const randomPronoun = pronounBank[Math.floor(Math.random() * pronounBank.length)];
         const candidate = randomPronoun.forms[type.to];
-        if (candidate !== correctAnswer && !options.includes(candidate)) {
-          options.push(candidate);
+        if(!options.includes(candidate) && candidate !== correctAnswer) {
+            options.push(candidate);
         }
-      }
-      return {
+    }
+
+    return {
         question: questionText,
         options: shuffleArray(options),
         answer: correctAnswer
-      };
-    }
+    };
+}
 
-    function displayQuestion() {
-      currentQuestion = generateQuestion();
-      questionCount++;
-      document.getElementById('question').textContent = currentQuestion.question;
-      document.getElementById('progress').textContent = `第 ${questionCount} 题`;
-      document.getElementById('feedback').textContent = '';
-      const container = document.querySelector('.options-container');
-      container.innerHTML = currentQuestion.options.map(opt => `
-        <div class="option" onclick="handleAnswer('${opt}')">${opt}</div>
+function displayQuestion() {
+    currentQuestion = generateQuestion();
+    questionCount++;
+    
+    document.getElementById('question').textContent = currentQuestion.question;
+    document.getElementById('progress').textContent = `第 ${questionCount} 题`;
+    
+    const container = document.querySelector('.options-container');
+    container.innerHTML = currentQuestion.options.map(opt => `
+        <div class="option" onclick="checkAnswer('${opt}')">${opt}</div>
     `).join('');
-    }
+}
 
-    function handleAnswer(selected) {
-      const options = document.querySelectorAll('.option');
-      options.forEach(opt => {
-        opt.style.pointerEvents = 'none'; // 禁用点击
-        if (opt.textContent === currentQuestion.answer) {
-          opt.classList.add('correct');
-        }
-      });
-      if (selected === currentQuestion.answer) {
+function checkAnswer(selected) {
+    const options = document.querySelectorAll('.option');
+    
+    // 禁用所有选项点击
+    options.forEach(opt => {
+        opt.style.pointerEvents = 'none';
+    });
+
+    if (selected === currentQuestion.answer) {
         score += 10;
         document.getElementById('score').textContent = `得分: ${score}`;
-        setTimeout(displayQuestion, 800); // 正确时延迟跳转
-      } else {
-        document.querySelector(`.option:contains('${selected}')`).classList.add('wrong');
-        document.getElementById('feedback').textContent = `正确答案：${currentQuestion.answer}`;
-        setTimeout(() => {
-          document.getElementById('feedback').textContent = ''; // 清空提示
-          displayQuestion();
-        }, 1500); // 错误时显示1.5秒后刷新
-      }
+        setTimeout(displayQuestion, 800); // 正确时直接跳转
+    } else {
+        // 弹出错误提示
+        alert(`❌ 正确答案是：${currentQuestion.answer}`);
+        setTimeout(displayQuestion, 1500); // 错误后延迟跳转
     }
+}
 
-    function shuffleArray(arr) {
-      for (let i = arr.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
+// 工具函数
+function shuffleArray(arr) {
+    for(let i = arr.length-1; i > 0; i--){
+        const j = Math.floor(Math.random()*(i+1));
         [arr[i], arr[j]] = [arr[j], arr[i]];
-      }
-      return arr;
     }
-    // 初始化游戏
-    displayQuestion();
-  </script>
-</body>
+    return arr;
+}
 
+// 开始游戏
+displayQuestion();
+</script>
+</body>
 </html>
+
 
