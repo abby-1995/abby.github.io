@@ -49,11 +49,27 @@
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
         }
 
         .option:hover {
+            transform: scale(1.02);
+        }
+
+        .option.correct {
+            background: var(--secondary);
+        }
+
+        .option.wrong {
             background: var(--primary);
-            transform: scale(1.05);
+            animation: shake 0.5s;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
         }
 
         #progress {
@@ -67,6 +83,12 @@
             right: 20px;
             font-size: 20px;
         }
+
+        #feedback {
+            margin-top: 20px;
+            min-height: 24px;
+            font-size: 18px;
+        }
     </style>
 </head>
 <body>
@@ -75,48 +97,26 @@
         <div id="question"></div>
         <div class="options-container"></div>
         <div id="progress"></div>
+        <div id="feedback"></div>
     </div>
 
 <script>
-// 完整的代词题库（覆盖所有7个人称）
 const pronounBank = [
-    {
-        chinese: "我",
-        forms: ["I", "me", "my", "mine", "myself"]
-    },
-    {
-        chinese: "你",
-        forms: ["you", "you", "your", "yours", "yourself"]
-    },
-    {
-        chinese: "他",
-        forms: ["he", "him", "his", "his", "himself"]
-    },
-    {
-        chinese: "她",
-        forms: ["she", "her", "her", "hers", "herself"]
-    },
-    {
-        chinese: "它",
-        forms: ["it", "it", "its", "its", "itself"]
-    },
-    {
-        chinese: "我们",
-        forms: ["we", "us", "our", "ours", "ourselves"]
-    },
-    {
-        chinese: "他们",
-        forms: ["they", "them", "their", "theirs", "themselves"]
-    }
+    { chinese: "我", forms: ["I", "me", "my", "mine", "myself"] },
+    { chinese: "你", forms: ["you", "you", "your", "yours", "yourself"] },
+    { chinese: "他", forms: ["he", "him", "his", "his", "himself"] },
+    { chinese: "她", forms: ["she", "her", "her", "hers", "herself"] },
+    { chinese: "它", forms: ["it", "it", "its", "its", "itself"] },
+    { chinese: "我们", forms: ["we", "us", "our", "ours", "ourselves"] },
+    { chinese: "他们", forms: ["they", "them", "their", "theirs", "themselves"] }
 ];
 
-// 题型配置
 const questionTypes = [
-    { from: 0, to: 0, desc: "的主格形式是？" },  // 中文->主格
-    { from: 0, to: 1, desc: "的宾格形式是？" },  // 中文->宾格
-    { from: 0, to: 2, desc: "的形容词性物主代词是？" }, // 中文->形容词性
-    { from: 2, to: 3, desc: "对应的名词性物主代词是？" }, // 形容词性->名词性
-    { from: 1, to: 4, desc: "的反身代词是？" }  // 宾格->反身
+    { from: 0, to: 0, desc: "的主格形式是？" },
+    { from: 0, to: 1, desc: "的宾格形式是？" },
+    { from: 0, to: 2, desc: "的形容词性物主代词是？" },
+    { from: 2, to: 3, desc: "对应的名词性物主代词是？" },
+    { from: 1, to: 4, desc: "的反身代词是？" }
 ];
 
 let currentQuestion = null;
@@ -124,29 +124,24 @@ let score = 0;
 let questionCount = 0;
 
 function generateQuestion() {
-    // 随机选择一个人称
     const pronoun = pronounBank[Math.floor(Math.random() * pronounBank.length)];
-    // 随机选择一个题型
     const type = questionTypes[Math.floor(Math.random() * questionTypes.length)];
     
-    // 生成问题描述
     let questionText = '';
-    if(type.from === 0) { // 中文提问
+    if(type.from === 0) {
         questionText = `${pronoun.chinese}${type.desc}`;
-    } else { // 英文转换
+    } else {
         const fromForm = pronoun.forms[type.from];
         questionText = `${fromForm}${type.desc}`;
     }
 
-    // 生成选项
     const correctAnswer = pronoun.forms[type.to];
     const options = [correctAnswer];
     
-    // 生成3个干扰项
     while(options.length < 4) {
         const randomPronoun = pronounBank[Math.floor(Math.random() * pronounBank.length)];
         const candidate = randomPronoun.forms[type.to];
-        if(!options.includes(candidate) && candidate !== correctAnswer) {
+        if(candidate !== correctAnswer && !options.includes(candidate)) {
             options.push(candidate);
         }
     }
@@ -164,10 +159,11 @@ function displayQuestion() {
     
     document.getElementById('question').textContent = currentQuestion.question;
     document.getElementById('progress').textContent = `第 ${questionCount} 题`;
+    document.getElementById('feedback').textContent = '';
     
     const container = document.querySelector('.options-container');
     container.innerHTML = currentQuestion.options.map(opt => `
-        <div class="option" onclick="checkAnswer('${opt}')">${opt}</div>
+        <div class="option" onclick="handleAnswer('${opt}')">${opt}</div>
     `).join('');
 }
 
@@ -196,7 +192,6 @@ function handleAnswer(selected) {
 }
 
 
-// 工具函数
 function shuffleArray(arr) {
     for(let i = arr.length-1; i > 0; i--){
         const j = Math.floor(Math.random()*(i+1));
@@ -205,8 +200,9 @@ function shuffleArray(arr) {
     return arr;
 }
 
-// 开始游戏
+// 初始化游戏
 displayQuestion();
 </script>
 </body>
 </html>
+
