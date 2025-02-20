@@ -188,9 +188,13 @@ function handleAnswer(selected) {
     } else {
         document.querySelector(`.option:contains('${selected}')`).classList.add('wrong');
         document.getElementById('feedback').textContent = `正确答案：${currentQuestion.answer}`;
-        setTimeout(displayQuestion, 1500); // 错误时显示1.5秒后刷新
+        setTimeout(() => {
+            document.getElementById('feedback').textContent = ''; // 清空提示
+            displayQuestion();
+        }, 1500); // 错误时显示1.5秒后刷新
     }
 }
+
 
 // 工具函数
 function shuffleArray(arr) {
