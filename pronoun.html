@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>魔法学院代词挑战</title>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --success-color: #2ecc71;
+            --error-color: #e74c3c;
+            --gold-color: #f1c40f;
+            --bg-dark: #2c3e50;
+            --card-bg: #34495e;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: var(--bg-dark);
+            font-family: 'Arial Rounded MT Bold', system-ui;
+            color: white;
+            display: grid;
+            place-items: center;
+        }
+
+        #game {
+            width: min(90%, 800px);
+            margin: 2rem auto;
+            text-align: center;
+            position: relative;
+        }
+
+        .sentence {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 15px;
+            margin: 2rem 0;
+            font-size: clamp(1.2rem, 2.5vw, 1.5rem);
+            min-height: 120px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        #options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
+            padding: 1rem 0;
+        }
+
+        .pronoun-option {
+            padding: 0.8rem 1.5rem;
+            background: var(--primary-color);
+            border-radius: 50px;
+            cursor: grab;
+            transition: transform 0.2s ease, background 0.3s;
+            user-select: none;
+            font-size: 1.1rem;
+        }
+
+        .pronoun-option:hover {
+            transform: translateY(-3px);
+            background: #2980b9;
+        }
+
+        .drop-zone {
+            width: 110px;
+            height: 50px;
+            border: 2px dashed #ecf0f1;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: border-color 0.3s;
+        }
+
+        #score {
+            position: absolute;
+            top: -1.5rem;
+            right: 0;
+            font-size: 1.4rem;
+            color: var(--gold-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        #character {
+            width: clamp(100px, 15vw, 150px);
+            position: fixed;
+            bottom: 1rem;
+            left: 1rem;
+            transition: transform 0.3s;
+        }
+
+        .correct-animation {
+            animation: sparkle 0.8s;
+        }
+
+        @keyframes sparkle {
+            0% { background: var(--success-color); }
+            50% { background: #27ae60; }
+            100% { background: var(--card-bg); }
+        }
+
+        #restart {
+            padding: 1rem 2rem;
+            font-size: 1.2rem;
+            background: var(--primary-color);
+            border: none;
+            border-radius: 50px;
+            color: white;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        #restart:hover {
+            transform: scale(1.1);
+        }
+
+        @media (max-width: 600px) {
+            .sentence { padding: 1rem; }
+            .pronoun-option { padding: 0.6rem 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <div id="game">
+        <div id="score">💰 <span>0</span></div>
+        <img id="character" src="https://img.icons8.com/color/96/000000/wizard.png" alt="魔法师" loading="lazy">
+        <div class="sentence"></div>
+        <div id="options"></div>
+    </div>
+
+<script>
+(function() {
+    const gameData = {
+        sentences: [
+            { text: "__ (我) am learning English at magic school.", answer: "I" },
+            { text: "This is __ (她的) magic wand.", answer: "her" },
+            { text: "The dragon defeated __ (他们).", answer: "them" },
+            { text: "We made this potion __ (我们自己).", answer: "ourselves" },
+            { text: "That book belongs to __ (他).", answer: "him" },
+            { text: "__ (你的) spellbook is on the table.", answer: "Your" },
+            { text: "The cat is looking at __ (它自己) in the mirror.", answer: "itself" },
+            { text: "They designed the castle __ (他们自己).", answer: "themselves" },
+            { text: "This potion is for __ (我们).", answer: "us" },
+            { text: "__ (我们的) magic teacher is very kind.", answer: "Our" }
+        ],
+        pronouns: ["I", "me", "my", "mine", "myself", "you", "your", "yours", "yourself", 
+                  "he", "him", "his", "himself", "she", "her", "hers", "herself", 
+                  "it", "its", "itself", "we", "us", "our", "ours", "ourselves", 
+                  "they", "them", "their", "theirs", "themselves"]
+    };
+
+    let currentLevel = 0;
+    let score = 0;
+    const dom = {
+        sentence: document.querySelector('.sentence'),
+        options: document.getElementById('options'),
+        score: document.querySelector('#score span'),
+        character: document.getElementById('character')
+    };
+
+    function initGame() {
+        renderSentence();
+        createOptions();
+    }
+
+    function renderSentence() {
+        const { text, answer } = gameData.sentences[currentLevel];
+        const [before, after] = text.split('__');
+        
+        dom.sentence.innerHTML = `
+            ${before}
+            <div class="drop-zone" 
+                 data-answer="${answer}"
+                 ondrop="handleDrop(event)" 
+                 ondragover="handleDragOver(event)"></div>
+            ${after}
+        `;
+    }
+
+    function createOptions() {
+        const { answer } = gameData.sentences[currentLevel];
+        const options = new Set([answer]);
+        
+        while(options.size < 5) {
+            const randomWord = gameData.pronouns[Math.floor(Math.random() * gameData.pronouns.length)];
+            options.add(randomWord);
+        }
+
+        dom.options.innerHTML = [...options].map(word => `
+            <div class="pronoun-option" 
+                 draggable="true"
+                 data-value="${word}"
+                 ondragstart="handleDragStart(event)">
+                ${word}
+            </div>
+        `).join('');
+    }
+
+    window.handleDragStart = (e) => {
+        e.dataTransfer.setData("text/plain", e.target.dataset.value);
+        e.target.style.opacity = '0.5';
+    };
+
+    window.handleDragOver = (e) => {
+        e.preventDefault();
+        e.target.style.borderColor = '#fff';
+    };
+
+    window.handleDrop = (e) => {
+        e.preventDefault();
+        const dropZone = e.target;
+        const userAnswer = e.dataTransfer.getData("text/plain");
+        const correctAnswer = dropZone.dataset.answer;
+
+        dropZone.style.borderColor = userAnswer === correctAnswer 
+            ? 'var(--success-color)' 
+            : 'var(--error-color)';
+
+        userAnswer === correctAnswer ? handleCorrect(dropZone) : handleWrong();
+    };
+
+    function handleCorrect(dropZone) {
+        dropZone.textContent = gameData.sentences[currentLevel].answer;
+        dom.sentence.classList.add('correct-animation');
+        dom.character.classList.add('celebrate');
+        score += 10;
+        
+        setTimeout(() => {
+            currentLevel++;
+            if(currentLevel < gameData.sentences.length) {
+                resetUI();
+                initGame();
+            } else {
+                showFinalResult();
+            }
+        }, 1200);
+    }
+
+    function handleWrong() {
+        score = Math.max(0, score - 5);
+        dom.score.textContent = score;
+        dom.options.childNodes.forEach(opt => {
+            if(opt.dataset.value === gameData.sentences[currentLevel].answer) {
+                opt.classList.add('highlight');
+            }
+        });
+    }
+
+    function resetUI() {
+        dom.sentence.classList.remove('correct-animation');
+        dom.character.classList.remove('celebrate');
+        dom.score.textContent = score;
+    }
+
+    function showFinalResult() {
+        dom.sentence.innerHTML = `🎉 完美通关！<br>最终得分：${score}/100`;
+        dom.options.innerHTML = '<button id="restart" onclick="location.reload()">再玩一次</button>';
+    }
+
+    initGame();
+})();
+</script>
+</body>
+</html>
