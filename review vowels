@@ -1,91 +1,82 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Phonics Practice</title>
+  <meta charset="UTF-8">
+  <title>字母与音标复习</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background-color: #f8f9fa;
+      font-family: "Arial", sans-serif;
       text-align: center;
-      padding: 40px;
+      padding-top: 100px;
+      background-color: #fffbe6;
     }
-
-    #content {
-      margin-top: 200px;
-    }
-
-    .letter {
+    #display {
       font-size: 200px;
-      font-weight: bold;
-      margin-bottom: 30px;
+      margin-bottom: 60px;
+      color: #222;
     }
-
-    .phoneme {
-      font-size: 200px;
-      color: #007bff;
-      margin-bottom: 30px;
-    }
-
-    .words {
-      font-size: 200px;
-      color: #333;
-    }
-
     button {
       font-size: 20px;
-      padding: 10px 20px;
-      margin-top: 60px;
+      padding: 20px 60px;
+      border: none;
+      background-color: #4CAF50;
+      color: white;
+      border-radius: 12px;
       cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
     }
   </style>
 </head>
 <body>
-  <div id="content">
-    <div class="letter" id="letter"></div>
-    <div class="phoneme" id="phoneme"></div>
-    <div class="words" id="words"></div>
-  </div>
 
-  <button onclick="nextItem()">下一项</button>
+  <div id="display">点击或按右键开始</div>
+  <button onclick="showNext()">下一项</button>
 
   <script>
     const items = [
-      { letter: 'a', phoneme: '/æ/', words: 'cat, hat' },
-      { letter: 'a-e', phoneme: '/eɪ/', words: 'cake, name' },
-      { letter: 'e', phoneme: '/e/', words: 'bed, pen' },
-      { letter: 'i', phoneme: '/ɪ/', words: 'sit, big' },
-      { letter: 'i-e', phoneme: '/aɪ/', words: 'bike, kite' },
-      { letter: 'o', phoneme: '/ɒ/', words: 'dog, hot' },
-      { letter: 'o-e', phoneme: '/əʊ/', words: 'home, nose' },
-      { letter: 'u', phoneme: '/ʌ/', words: 'cup, sun' },
-      { letter: 'u-e', phoneme: '/ju:/' , words: 'cube, mute' },
-      { letter: 'e-e', phoneme: '/iː/', words: 'these, Pete' },
+      'a', '/æ/', 'dad, cat',
+      'a', '/eɪ/', 'cake, skate',
+      'e', '/e/', 'pen, bed',
+      'i', '/ɪ/', 'pig, sit',
+      'i', '/aɪ/', 'bike, kite',
+      'o', '/o/', 'dog, hop',
+      'o', '/əʊ/', 'nose, joke',
+      'u', '/ʌ/', 'cup, sun',
+      'u', '/juː/', 'use, cute',
+      'ai', '/eɪ/', 'rain, train',
+      'ay', '/eɪ/', 'day, play',
+      'ea', '/i:/', 'meat, seat',
+      'ea', '/e/', 'bread, head',
+      'ee', '/i:/', 'tree, sheep',
+      'oa', '/əʊ/', 'boat, coat',
+      'oo', '/ʊ/', 'book, look',
+      'oo', '/u:/', 'moon, pool',
+      'ou', '/aʊ/', 'house, round',
+      'oy', '/ɔɪ/', 'toy, joy'
     ];
 
-    let currentIndex = 0;
+    let index = -1;
 
-    function showItem(index) {
-      document.getElementById('letter').textContent = items[index].letter;
-      document.getElementById('phoneme').textContent = items[index].phoneme;
-      document.getElementById('words').textContent = items[index].words;
+    function showNext() {
+      index++;
+      if (index < items.length) {
+        document.getElementById('display').innerText = items[index];
+      } else {
+        document.getElementById('display').innerText = "🎉 复习结束！";
+      }
     }
 
-    function nextItem() {
-      currentIndex = (currentIndex + 1) % items.length;
-      showItem(currentIndex);
-    }
-
-    // 初始化显示第一项
-    showItem(currentIndex);
-
-    // 键盘控制翻页：右箭头或PageDown
-    document.addEventListener('keydown', function(e) {
-      if (e.key === 'ArrowRight' || e.key === 'PageDown') {
-        nextItem();
+    // 支持键盘右键控制（翻页笔通常模拟 ArrowRight）
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'ArrowRight' || event.key === 'PageDown') {
+        showNext();
       }
     });
   </script>
+
 </body>
 </html>
+
 
