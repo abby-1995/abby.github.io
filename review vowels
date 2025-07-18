@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>字母与音标复习</title>
+  <style>
+    body {
+      font-family: "Arial", sans-serif;
+      text-align: center;
+      padding-top: 100px;
+      background-color: #fffbe6;
+    }
+    #display {
+      font-size: 96px;
+      margin-bottom: 60px;
+      color: #222;
+    }
+    button {
+      font-size: 36px;
+      padding: 20px 60px;
+      border: none;
+      background-color: #4CAF50;
+      color: white;
+      border-radius: 12px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="display">点击或按右键开始</div>
+  <button onclick="showNext()">下一项</button>
+
+  <script>
+    const items = [
+      'a', '/æ/', 'dad, cat',
+      'a', '/eɪ/', 'cake, skate',
+      'e', '/e/', 'pen, bed',
+      'i', '/ɪ/', 'pig, sit',
+      'i', '/aɪ/', 'bike, kite',
+      'o', '/o/', 'dog, hop',
+      'o', '/əʊ/', 'nose, joke',
+      'u', '/ʌ/', 'cup, sun',
+      'u', '/juː/', 'use, cute',
+      'ai', '/eɪ/', 'rain, train',
+      'ay', '/eɪ/', 'day, play',
+      'ea', '/i:/', 'meat, seat',
+      'ea', '/e/', 'bread, head',
+      'ee', '/i:/', 'tree, sheep',
+      'oa', '/əʊ/', 'boat, coat',
+      'oo', '/ʊ/', 'book, look',
+      'oo', '/u:/', 'moon, pool',
+      'ou', '/aʊ/', 'house, round',
+      'oy', '/ɔɪ/', 'toy, joy'
+    ];
+
+    let index = -1;
+
+    function showNext() {
+      index++;
+      if (index < items.length) {
+        document.getElementById('display').innerText = items[index];
+      } else {
+        document.getElementById('display').innerText = "🎉 复习结束！";
+      }
+    }
+
+    // 支持键盘右键控制（翻页笔通常模拟 ArrowRight）
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'ArrowRight' || event.key === 'PageDown') {
+        showNext();
+      }
+    });
+  </script>
+
+</body>
+</html>
