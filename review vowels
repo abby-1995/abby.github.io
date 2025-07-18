@@ -1,95 +1,91 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Phonics Presentation</title>
+  <meta charset="UTF-8" />
+  <title>Phonics Practice</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      font-size: 60px;
+      background-color: #f8f9fa;
       text-align: center;
-      padding: 100px 20px;
+      padding: 40px;
     }
-    .content {
-      display: none;
+
+    #content {
+      margin-top: 100px;
     }
-    .active {
-      display: block;
+
+    .letter {
+      font-size: 100px;
+      font-weight: bold;
+      margin-bottom: 30px;
     }
-    .button {
-      margin-top: 80px;
-      font-size: 30px;
-      padding: 20px 40px;
+
+    .phoneme {
+      font-size: 70px;
+      color: #007bff;
+      margin-bottom: 30px;
+    }
+
+    .words {
+      font-size: 60px;
+      color: #333;
+    }
+
+    button {
+      font-size: 20px;
+      padding: 10px 20px;
+      margin-top: 60px;
       cursor: pointer;
     }
   </style>
 </head>
 <body>
-
-  <div class="content active">
-    <div>a /æ/</div>
-    <div>cat, map</div>
-  </div>
-  <div class="content">
-    <div>a /eɪ/</div>
-    <div>cake, late</div>
-  </div>
-  <div class="content">
-    <div>e /e/</div>
-    <div>bed, pen</div>
-  </div>
-  <div class="content">
-    <div>i /ɪ/</div>
-    <div>fish, sit</div>
-  </div>
-  <div class="content">
-    <div>i /aɪ/</div>
-    <div>bike, kite</div>
-  </div>
-  <div class="content">
-    <div>o /ɒ/</div>
-    <div>dog, box</div>
-  </div>
-  <div class="content">
-    <div>o /əʊ/</div>
-    <div>nose, rope</div>
-  </div>
-  <div class="content">
-    <div>u /ʌ/</div>
-    <div>cup, sun</div>
-  </div>
-  <div class="content">
-    <div>u /uː/</div>
-    <div>blue, moon</div>
-  </div>
-  <div class="content">
-    <div>u /ʊ/</div>
-    <div>book, good</div>
+  <div id="content">
+    <div class="letter" id="letter"></div>
+    <div class="phoneme" id="phoneme"></div>
+    <div class="words" id="words"></div>
   </div>
 
-  <button class="button" onclick="nextContent()">下一项</button>
+  <button onclick="nextItem()">下一项</button>
 
   <script>
-    let current = 0;
-    const contents = document.querySelectorAll('.content');
+    const items = [
+      { letter: 'a', phoneme: '/æ/', words: 'cat, hat' },
+      { letter: 'a-e', phoneme: '/eɪ/', words: 'cake, name' },
+      { letter: 'e', phoneme: '/e/', words: 'bed, pen' },
+      { letter: 'i', phoneme: '/ɪ/', words: 'sit, big' },
+      { letter: 'i-e', phoneme: '/aɪ/', words: 'bike, kite' },
+      { letter: 'o', phoneme: '/ɒ/', words: 'dog, hot' },
+      { letter: 'o-e', phoneme: '/əʊ/', words: 'home, nose' },
+      { letter: 'u', phoneme: '/ʌ/', words: 'cup, sun' },
+      { letter: 'u-e', phoneme: '/ju:/' , words: 'cube, mute' },
+      { letter: 'e-e', phoneme: '/iː/', words: 'these, Pete' },
+    ];
 
-    function showContent(index) {
-      contents.forEach((el, i) => {
-        el.classList.toggle('active', i === index);
-      });
+    let currentIndex = 0;
+
+    function showItem(index) {
+      document.getElementById('letter').textContent = items[index].letter;
+      document.getElementById('phoneme').textContent = items[index].phoneme;
+      document.getElementById('words').textContent = items[index].words;
     }
 
-    function nextContent() {
-      current = (current + 1) % contents.length;
-      showContent(current);
+    function nextItem() {
+      currentIndex = (currentIndex + 1) % items.length;
+      showItem(currentIndex);
     }
 
-    // 键盘控制（右箭头和空格键）
+    // 初始化显示第一项
+    showItem(currentIndex);
+
+    // 键盘控制翻页：右箭头或PageDown
     document.addEventListener('keydown', function(e) {
-      if (e.key === 'ArrowRight' || e.key === ' ') {
-        nextContent();
+      if (e.key === 'ArrowRight' || e.key === 'PageDown') {
+        nextItem();
       }
     });
   </script>
 </body>
 </html>
+
